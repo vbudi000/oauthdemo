@@ -1,0 +1,51 @@
+<HTML>
+<HEAD><TITLE>OAuth 2.0 Demonstration</TITLE>
+<link rel="stylesheet" type="text/css" href="/srv/oauth.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script> 
+<script>
+function setParam() {
+    console.log("Set Parameters");
+    sessionStorage.setItem("clientID",document.getElementById("clientID").value);
+    sessionStorage.setItem("apicurl",document.getElementById("apicurl").value);
+    sessionStorage.setItem("authPath",document.getElementById("authPath").value);
+    sessionStorage.setItem("toknPath",document.getElementById("toknPath").value);
+    sessionStorage.setItem("redirUrl",document.getElementById("redirUrl").value);
+}
+
+function initParam() {
+
+    document.getElementById("clientID").value = sessionStorage.clientID || "651df7ec-791f-4175-9784-76ed661a8cbf";
+    document.getElementById("apicurl").value = sessionStorage.apicurl || "https://api.us.apiconnect.ibmcloud.com/vbudiusibmcom-dev/bluecompute-vbudiusibmcom";
+    document.getElementById("authPath").value = sessionStorage.authPath || "/oauth20/oauth2/authorize";
+    document.getElementById("toknPath").value = sessionStorage.toknPath || "/oauth20/oauth2/token";
+    document.getElementById("redirUrl").value = sessionStorage.redirUrl || "http://apic-oauth-demo.mybluemix.net/redirect";
+}
+
+</script>
+</HEAD>
+<BODY onload="initParam()">
+<DIV id=splash><CENTER><IMG SRC="/srv/ibmeduc.jpg" /></CENTER></DIV>
+<DIV id=enter>
+<H1>OAuth 2.0 demonstration</H1>
+
+<P>This site is used to demonstrate the OAuth 2.0 authorization flow.</P>
+<P>Enter the following information:</P>
+<P>API Connect client ID: <INPUT type="text" id="clientID"  style="width:600px;" /></P>
+<P>API Connect URL: <INPUT type="text" id="apicurl"  style="width:600px;"/></P>
+<P>Authorize path: <INPUT type="text" id="authPath"  style="width:600px;" /></P>
+<P>Token API path: <INPUT type="text" id="toknPath"  style="width:600px;"/></P>
+<P>Redirect URL: <INPUT type="text" id="redirUrl"  style="width:600px;"/></P>
+<FORM>
+<button onclick="setParam()" style="width:300px;"> Set Parameters </button>
+</FORM>
+
+<P style="text-align:left;font-size:22px;margin-left: 10px;">Select one of the following flows to test</P>
+<UL style="text-align:left;">
+<LI style="font-size:20px;"><A HREF="/srv/acc-code.html">Access code grant</A></LI>
+<LI style="font-size:20px;"><A HREF="/srv/implicit.html">Implicit grant</A></LI>
+<LI style="font-size:20px;"><A HREF="/srv/password.html">Password grant</A></LI>
+</UL>
+
+</DIV>
+</BODY>
+</HTML>

@@ -1,0 +1,118 @@
+<HTML>
+<HEAD><TITLE>OAuth 2.0 Demonstration - Implicit grant</TITLE>
+<link rel="stylesheet" type="text/css" href="/srv/oauth.css"> 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<SCRIPT>
+
+function setParam() {
+
+    document.getElementById("clientID").value = sessionStorage.clientID;
+    document.getElementById("apicurl").value = sessionStorage.apicurl;
+    document.getElementById("authPath").value = sessionStorage.authPath;
+    document.getElementById("toknPath").value = sessionStorage.toknPath;
+    document.getElementById("redirUrl").value = sessionStorage.redirUrl;
+}
+
+function pwLogin() {
+  var post_data = "response_type=code&scope=blue&client_id="+sessionStorage.clientID+"&state=token&redirect_uri="+sessionStorage.redirUrl;
+  log("Invoking Access-code authentication using: \n"+post_data +" \n External login form will show in the internal frame");
+  var authurl=sessionStorage.apicurl+sessionStorage.authPath;
+  $("#frame").attr("src", authurl+"?"+post_data);
+}
+
+function getProfile() {
+   var access_token =  document.getElementById("access_token").value;
+   if (access_token=="") {
+     log("No token defined");
+   } else {
+     $.ajax({
+         url: sessionStorage.apicurl+"/micro/customer",
+         type: "GET",
+         beforeSend: function(xhr){
+           xhr.setRequestHeader('X-IBM-Client-Id',  sessionStorage.clientID);
+           xhr.setRequestHeader('Authorization', 'Bearer '+access_token);},
+         success: function(data, code, jqxhr) { document.getElementById("profile").innerHTML = JSON.stringify(data,null,2); },
+         error: function(jqxhr, error) { console.log(error); console.log(jqxhr.responseText); log("Error: "+error+"; "+jqxhr.responseText);}
+      });
+    }
+}
+
+function getAuthCode() {
+    var iframe = document.getElementById('frame');
+    var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+    var dataq = iframeDocument.getElementById('dataq').innerHTML;
+    var token = getQueryVariableText(dataq,"code");
+    log("Getting auth code"+token);
+    document.getElementById("auth_code").value=token;
+}
+
+
+function getToken() {
+    var acode = document.getElementById("auth_code").value;
+    var data = "grant_type=authorization_code&code="+acode+
+               "&redirect_url="+sessionStorage.redirUrl+"&" +
+               "client_id="+sessionStorage.clientID;
+    log("Requesting token using: \n"+data);
+     $.post(sessionStorage.apicurl+sessionStorage.toknPath,
+            data , 
+            function(rdata,status) {
+               console.log(rdata); 
+               document.getElementById("access_code").value = rdata;
+            }, "application/x-www-form-urlencoded")
+      .always(function( data, textStatus, jqXHR ) {
+        log("Getting response: \n"+data.responseText);
+        var jdata = JSON.parse(data.responseText);
+        var access_token = jdata.access_token;
+        console.log(access_token);
+        document.getElementById("access_token").value = access_token;
+      });
+;
+      //.fail(function() {console.log("Fail");});
+}
+
+function getQueryVariableText(text,variable) {
+    var vars = text.split('&');
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split('=');
+        if (decodeURIComponent(pair[0]) == variable) {
+            return decodeURIComponent(pair[1]);
+        }
+    }
+    console.log('Query variable %s not found', variable);
+}
+
+function log(msg) {
+     alert(msg);
+}
+</SCRIPT>
+</HEAD>
+<BODY onload="setParam()">
+<DIV id=splash><CENTER><IMG SRC="/srv/ibmeduc.jpg" /></CENTER></DIV>
+<DIV id=enter>
+<H1>Access code grant</H1>
+
+    <button onclick="pwLogin()" style="width:300px;">Sign in</button>
+    <iframe id="frame" src="" width="100%" height="300">
+    </iframe>
+
+<button onclick="getAuthCode()">Get Auth code</button>
+<P>Authorization code: <input type="text" disabled="true" id="auth_code" value="" width=30></P>
+<button onclick="getToken()">Get Token</button>
+<P>Access token: <input type="text" disabled="true" id="access_token" value="" width=30></P>
+
+<P><A HREF="/srv/index.html">Home</A></P>
+<P>Parameters:</P>
+<P>API Connect client ID: <INPUT type="text" id="clientID" disabled="true" /></P>
+<P>API Connect URL: <INPUT type="text" id="apicurl" disabled="true" /></P>
+<P>Authorize path: <INPUT type="text" id="authPath" disabled="true" /></P>
+<P>Token API path: <INPUT type="text" id="toknPath" disabled="true" /></P>
+<P>Redirect URL: <INPUT type="text" id="redirUrl" disabled="true" /></P>
+</DIV>
+<DIV id=custprofile>
+<button id="getProfile" onClick="getProfile()" >Get Profile</button>
+<br>
+<p id="profile">
+</p>
+</DIV>
+</BODY>
+</HTML>

@@ -1,0 +1,23 @@
+<HTML>
+<HEAD><TITLE>Redirect</TITLE>
+<SCRIPT>
+function getURI() {
+  var dataq = window.location.hash.substr(1);
+  var href = window.location.href;
+  if (dataq=="") {
+    href=href+"?";
+    var elem = href.split("?");
+    dataq = elem[1];
+  }
+  alert(dataq);
+  document.getElementById("dataq").innerHTML = dataq;
+}
+</SCRIPT>
+</HEAD>
+<BODY onload="getURI()">
+<P>Redirect page from OAuth</P>
+
+<P>Retrieved data:   </P>
+<p id="dataq"></P>
+</BODY>
+</HTML>
